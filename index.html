@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>出差信息</title>
+    <style>
+        body {
+            font-family: "Microsoft YaHei", Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            position: relative;
+        }
+        body::before,
+        body::after {
+            content: '功能件';
+            position: fixed;
+            font-size: 120px;
+            color: rgba(0, 0, 0, 0.03);
+            font-weight: bold;
+            transform: rotate(-45deg);
+            user-select: none;
+            pointer-events: none;
+            z-index: 0;
+            white-space: nowrap;
+        }
+        body::before {
+            top: 50%;
+            left: 10%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+        }
+        body::after {
+            top: 50%;
+            right: -5%;
+            transform: translate(50%, -50%) rotate(-45deg);
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 1;
+        }
+        .container::before,
+        .container::after {
+            content: '麻麻';
+            position: fixed;
+            font-size: 30px;
+            color: rgba(0, 0, 0, 0.03);
+            font-weight: bold;
+            transform: rotate(-45deg);
+            user-select: none;
+            pointer-events: none;
+            z-index: 0;
+            white-space: nowrap;
+        }
+        .container::before {
+            top: 50%;
+            left: 10%;
+            transform: translate(200px, -150px) rotate(-45deg);
+        }
+        .container::after {
+            top: 50%;
+            right: -5%;
+            transform: translate(calc(50% + 200px), -150px) rotate(-45deg);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .input-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        input[type="number"], input[type="text"], textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        .cost-inputs {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .copy-notification {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #4CAF50;
+            color: white;
+            padding: 20px 40px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            z-index: 1000;
+            display: none;
+        }
+        .output-section {
+            padding: 20px;
+            background-color: #fff;
+            border: 2px solid #4CAF50;
+            border-radius: 5px;
+            white-space: pre-line;
+            line-height: 1.8;
+            font-size: 15px;
+        }
+        .output-section strong {
+            color: #2c3e50;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>出差信息生成器 V1.3</h1>
+
+        <div class="input-section">
+            <h2>填写信息</h2>
+
+            <div class="form-group">
+                <label>出差日期</label>
+                <div class="cost-inputs" style="grid-template-columns: 1fr 1fr 1fr;">
+                    <div>
+                        <label>开始日期（年.月.日）</label>
+                        <input type="date" id="startDate">
+                    </div>
+                    <div>
+                        <label>结束日期（年.月.日）</label>
+                        <input type="date" id="endDate">
+                    </div>
+                    <div>
+                        <label>出差统计</label>
+                        <input type="text" id="dateStats" readonly style="background-color: #f0f0f0;" placeholder="请选择日期">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>出发城市</label>
+                <input type="text" id="departureCity" placeholder="例如：常州">
+            </div>
+
+            <div class="form-group">
+                <label>返回城市</label>
+                <input type="text" id="returnCity" placeholder="例如：常州">
+            </div>
+
+            <div class="form-group">
+                <label>出差信息</label>
+                <div class="cost-inputs" style="grid-template-columns: 1fr 1fr;">
+                    <div>
+                        <label>出差城市</label>
+                        <input type="text" id="city" placeholder="例如：北京">
+                    </div>
+                    <div>
+                        <label>计划出行方式</label>
+                        <input type="text" id="travelMethod" placeholder="例如：高铁/飞机/自驾">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>住宿信息</label>
+                <div class="cost-inputs">
+                    <div>
+                        <label>夜晚数（自动计算）</label>
+                        <input type="number" id="days" readonly style="background-color: #f0f0f0;" value="0" min="0">
+                    </div>
+                    <div>
+                        <label>住宿费用（自动计算）</label>
+                        <input type="text" id="accommodationDisplay" readonly style="background-color: #f0f0f0;">
+                    </div>
+                    <div></div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>其他费用</label>
+                <div class="cost-inputs">
+                    <div>
+                        <label>交通费用（元）</label>
+                        <input type="number" id="transport" value="0">
+                    </div>
+                    <div>
+                        <label>打车费用（元）</label>
+                        <input type="number" id="taxi" value="0">
+                    </div>
+                    <div></div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>出差事由（每行一项，自动编号）</label>
+                <textarea id="reasons" placeholder="例如：&#10;常州/北京投产支持xx车型装车&#10;验证AuditPQ的xx问题验证&#10;去xx地方验证什么问题"></textarea>
+            </div>
+
+            <button onclick="generateOutput()">生成出差信息</button>
+        </div>
+
+        <div class="copy-notification" id="copyNotification">
+            已复制到剪贴板，1秒后跳转至理想出差系统
+        </div>
+
+        <div class="output-section" id="output">
+            <strong>输出结果将显示在这里...</strong>
+        </div>
+    </div>
+
+    <script>
+        // 计算住宿费用
+        function calculateAccommodation() {
+            const city = document.getElementById('city').value.trim();
+            const days = parseInt(document.getElementById('days').value) || 0;
+
+            // 一线城市判断
+            const tierOneCities = ['北京', '上海', '广州', '深圳'];
+            const dailyRate = tierOneCities.includes(city) ? 400 : 300;
+
+            const accommodation = dailyRate * days;
+            document.getElementById('accommodationDisplay').value = accommodation + '元';
+
+            return accommodation;
+        }
+
+        // 计算日期统计
+        function calculateDateStats() {
+            const startDateInput = document.getElementById('startDate').value;
+            const endDateInput = document.getElementById('endDate').value;
+
+            if (!startDateInput || !endDateInput) {
+                document.getElementById('dateStats').value = '请选择日期';
+                document.getElementById('days').value = 0;
+                calculateAccommodation();
+                return { days: 0, nights: 0, formattedStart: '', formattedEnd: '' };
+            }
+
+            const startDate = new Date(startDateInput);
+            const endDate = new Date(endDateInput);
+
+            // 计算天数差
+            const timeDiff = endDate - startDate;
+            const daysDiff = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+
+            const totalDays = daysDiff + 1; // 包含开始和结束日期
+            const totalNights = daysDiff; // 晚数
+
+            // 格式化日期为年.月.日
+            const formatDate = (date) => {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}.${month}.${day}`;
+            };
+
+            const formattedStart = formatDate(startDate);
+            const formattedEnd = formatDate(endDate);
+
+            // 更新统计显示
+            if (totalDays > 0) {
+                document.getElementById('dateStats').value = `${totalDays}天${totalNights}晚`;
+                // 自动更新住宿信息中的夜晚数
+                document.getElementById('days').value = totalNights;
+                // 触发住宿费用计算
+                calculateAccommodation();
+            } else {
+                document.getElementById('dateStats').value = '日期有误';
+                document.getElementById('days').value = 0;
+                calculateAccommodation();
+            }
+
+            return { days: totalDays, nights: totalNights, formattedStart, formattedEnd };
+        }
+
+        // 自动更新住宿费用
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('city').addEventListener('input', calculateAccommodation);
+            document.getElementById('startDate').addEventListener('change', calculateDateStats);
+            document.getElementById('endDate').addEventListener('change', calculateDateStats);
+        });
+
+        function generateOutput() {
+            const accommodation = calculateAccommodation();
+            const transport = parseInt(document.getElementById('transport').value) || 0;
+            const taxi = parseInt(document.getElementById('taxi').value) || 0;
+            const total = accommodation + transport + taxi;
+
+            const departureCity = document.getElementById('departureCity').value.trim();
+            const destinationCity = document.getElementById('city').value.trim();
+            const returnCity = document.getElementById('returnCity').value.trim();
+            const dateInfo = calculateDateStats();
+
+            // 生成出发信息
+            const departureInfo = `出发时间：${dateInfo.formattedStart} ${departureCity}-${destinationCity}`;
+            const returnInfo = `返回时间：${dateInfo.formattedEnd} ${destinationCity}-${returnCity}`;
+
+            const reasons = document.getElementById('reasons').value
+                .split('\n')
+                .filter(line => line.trim() !== '')
+                .map((line, index) => `${index + 1}、${line.trim()}`)
+                .join('；\n');
+
+            // 生成纯文本格式（用于复制）
+            const textOutput = `出差时间：${dateInfo.formattedStart}至${dateInfo.formattedEnd}；\n费用预计：${total}元（${accommodation}住宿+${transport}交通+${taxi}打车）\n出差事由:\n${departureInfo}；\n${returnInfo}；\n${reasons}；`;
+
+            // 生成HTML格式（用于显示）
+            const htmlOutput = `<strong>出差时间：${dateInfo.formattedStart}至${dateInfo.formattedEnd}；</strong>
+<strong>费用预计：${total}元（${accommodation}住宿+${transport}交通+${taxi}打车）</strong>
+<strong>出差事由:</strong>
+${departureInfo}；
+${returnInfo}；
+${reasons}；`;
+
+            document.getElementById('output').innerHTML = htmlOutput;
+
+            // 复制到剪贴板
+            navigator.clipboard.writeText(textOutput).then(() => {
+                // 显示复制成功提示
+                const notification = document.getElementById('copyNotification');
+                notification.style.display = 'block';
+
+                // 1.5秒后隐藏提示并打开网页
+                setTimeout(() => {
+                    notification.style.display = 'none';
+                    window.open('https://coa-it.chehejia.com:9528/attendance?lang=zh-CN&open_in_browser=true#/trip/newlist/console', '_blank');
+                }, 1500);
+            }).catch(err => {
+                alert('复制失败，请手动复制：' + err);
+            });
+        }
+
+        // 初始示例
+        window.onload = function() {
+            document.getElementById('city').value = '';
+            document.getElementById('days').value = 0;
+            document.getElementById('transport').value = 0;
+            document.getElementById('taxi').value = 0;
+            document.getElementById('reasons').value = '常州/北京投产支持xx车型装车\n验证AuditPQ的xx问题验证\n去xx地方验证什么问题（如中途去其他地方，包括供应商试模、电机审核等等）';
+            document.getElementById('startDate').value = '';
+            document.getElementById('endDate').value = '';
+            calculateAccommodation();
+            calculateDateStats();
+        };
+    </script>
+</body>
+</html>
